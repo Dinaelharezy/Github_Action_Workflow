@@ -1,9 +1,9 @@
-# GitHub Actions CI/CD Workflow
-# هذا الملف يوضع في: .github/workflows/ci-cd.yml
+## GitHub Actions CI/CD Workflow
+## هذا الملف يوضع في: .github/workflows/ci-cd.yml
 
 name: CI/CD Pipeline
 
-# Events - متى يتم تشغيل الـ Workflow
+## Events - متى يتم تشغيل الـ Workflow
 on:
   # يشتغل عند Push على الـ branches المحددة
   push:
@@ -211,7 +211,7 @@ jobs:
           echo "🔍 Running health checks..."
           echo "Application is healthy ✅"
       
-      # استخدام GitHub Objects للـ Notification
+      ## استخدام GitHub Objects للـ Notification
       - name: Deployment summary
         if: always()
         run: |

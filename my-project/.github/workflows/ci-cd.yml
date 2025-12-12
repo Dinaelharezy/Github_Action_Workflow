@@ -1,106 +1,23 @@
-## GitHub Actions CI/CD Workflow
-## هذا الملف يوضع في: .github/workflows/ci-cd.yml
-
 name: CI/CD Pipeline
 
-## Events - متى يتم تشغيل الـ Workflow
 on:
-  # يشتغل عند Push على الـ branches المحددة
   push:
     branches:
       - main
       - develop
-
-  
-  # يشتغل عند Pull Request
   pull_request:
     branches:
       - main
     types: [opened, synchronize, reopened]
-  
-  # يسمح بالتشغيل اليدوي من GitHub UI
   workflow_dispatch:
-    inputs:
-      environment:
-        description: 'Environment to deploy'
-        required: true
-        default: 'staging'
-        type: choice
-        options:
-          - staging
-          - production
 
-# Environment Variables - متغيرات عامة للـ Workflow
 env:
   NODE_VERSION: '18'
-  APP_NAME: 'my-application'
 
-# Jobs - الوظائف الثلاثة المطلوبة
 jobs:
-  # ==================== JOB 1: TEST ====================
   test:
     name: Run Tests
     runs-on: ubuntu-latest
-    
-    # Environment variables خاصة بهذا الـ Job
-    env:
-      TEST_ENV: 'CI'
-    
-    # استراتيجية لتشغيل Tests على versions مختلفة
-    strategy:
-      matrix:
-        node-version: [16, 18, 20]
-    
-    steps:
-      # الخطوة 1: Checkout الكود
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
-      # الخطوة 2: Setup Node.js
-      - name: Setup Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-      
-      # الخطوة 3: Install Dependencies
-      - name: Install dependencies
-        run: npm ci
-      
-      # الخطوة 4: Run Tests
-      - name: Run tests
-        run: npm test
-        env:
-          CI: true
-      
-      # الخطوة 5: Upload Test Results
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-node-${{ matrix.node-version }}
-          path: coverage/
-          retention-days: 5
-      
-      # استخدام Expressions للتحقق من النجاح
-      - name: Check test status
-        if: ${{ success() }}
-        run: |
-          echo "✅ Tests passed on Node ${{ matrix.node-version }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Commit: ${{ github.sha }}"
-
-  # ==================== JOB 2: BUILD ====================
-  build:
-    name: Build Application
-    runs-on: ubuntu-latest
-    needs: test  # ينتظر نجاح Test Job
-    
-    # يشتغل فقط على main branch أو عند workflow_dispatch
-    if: github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch'
-    
-    outputs:
-      build-version: ${{ steps.version.outputs.version }}
     
     steps:
       - name: Checkout code
@@ -115,120 +32,37 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      # Generate Build Version باستخدام Expressions
-      - name: Generate build version
-        id: version
-        run: |
-          VERSION="v1.0.${{ github.run_number }}"
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "📦 Building version: $VERSION"
-      
-      - name: Build application
-        run: |
-          npm run build
-          echo "Build completed at $(date)"
-        env:
-          BUILD_VERSION: ${{ steps.version.outputs.version }}
-      
-      # استخدام GitHub Context Objects
-      - name: Display build info
-        run: |
-          echo "🔨 Build Information:"
-          echo "Repository: ${{ github.repository }}"
-          echo "Actor: ${{ github.actor }}"
-          echo "Event: ${{ github.event_name }}"
-          echo "Workflow: ${{ github.workflow }}"
-          echo "Run ID: ${{ github.run_id }}"
-          echo "Run Number: ${{ github.run_number }}"
-      
-      # Upload Build Artifacts
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-${{ steps.version.outputs.version }}
-          path: |
-            dist/
-            package.json
-          retention-days: 30
-      
-      - name: Build success notification
-        if: success()
-        run: |
-          echo "✅ Build successful for ${{ env.APP_NAME }}"
-          echo "Version: ${{ steps.version.outputs.version }}"
+      - name: Run tests
+        run: npm test
 
-  # ==================== JOB 3: DEPLOY ====================
-  deploy:
-    name: Deploy Application
+  build:
+    name: Build Application
     runs-on: ubuntu-latest
-    needs: [test, build]  # ينتظر نجاح Test و Build
-    
-    # يشتغل فقط على main branch
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    
-    # Environment للـ Deployment
-    environment:
-      name: ${{ github.event.inputs.environment || 'production' }}
-      url: https://${{ env.APP_NAME }}.example.com
+    needs: test
+    if: github.ref == 'refs/heads/main'
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      # Download Build Artifacts
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          pattern: build-*
-          merge-multiple: true
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
       
-      # استخدام Expressions المعقدة
-      - name: Determine deployment environment
-        id: env-check
-        run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
-            ENV="production"
-          else
-            ENV="staging"
-          fi
-          echo "environment=$ENV" >> $GITHUB_OUTPUT
-          echo "🚀 Deploying to: $ENV"
+      - name: Install dependencies
+        run: npm ci
       
-      # Simulate Deployment
-      - name: Deploy to ${{ steps.env-check.outputs.environment }}
-        run: |
-          echo "🚀 Deploying application..."
-          echo "Environment: ${{ steps.env-check.outputs.environment }}"
-          echo "Version: ${{ needs.build.outputs.build-version }}"
-          echo "Deployed by: ${{ github.actor }}"
-          echo "Commit message: ${{ github.event.head_commit.message }}"
-          sleep 5
-          echo "✅ Deployment completed successfully!"
-      
-      # Post-deployment health check
-      - name: Health check
-        run: |
-          echo "🔍 Running health checks..."
-          echo "Application is healthy ✅"
-      
-      ## استخدام GitHub Objects للـ Notification
-      - name: Deployment summary
-        if: always()
-        run: |
-          echo "📊 Deployment Summary:"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          echo "Repository: ${{ github.repository }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Commit SHA: ${{ github.sha }}"
-          echo "Triggered by: ${{ github.actor }}"
-          echo "Event: ${{ github.event_name }}"
-          echo "Workflow Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          echo "Environment: ${{ steps.env-check.outputs.environment }}"
-          echo "Status: ${{ job.status }}"
-          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-      
-      - name: Notify deployment status
-        if: success()
-        run: |
-          echo "✅ Deployment to ${{ steps.env-check.outputs.environment }} completed!"
-          echo "🌐 Application URL: https://${{ env.APP_NAME }}.example.com"
+      - name: Build application
+        run: npm run build
+
+  deploy:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    needs: [test, build]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Deploy
+        run: echo "Deploying application..."

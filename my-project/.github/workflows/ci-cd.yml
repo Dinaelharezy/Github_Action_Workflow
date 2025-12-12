@@ -10,9 +10,7 @@ on:
     branches:
       - main
       - develop
-    paths-ignore:
-      - '**.md'
-      - 'docs/**'
+
   
   # يشتغل عند Pull Request
   pull_request:

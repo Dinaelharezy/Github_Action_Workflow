@@ -59,21 +59,23 @@ jobs:
         run: npm run build || echo "No build step"
 
   # ----------- DEPLOY -----------
-  deploy:
-    name: 🚀 Deploy to Vercel
-    needs: build
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
-    # environment: Production
+ deploy:
+  name: 🚀 Deploy to Vercel
+  needs: build
+  runs-on: ubuntu-latest
+  if: github.ref == 'refs/heads/main'
+  # environment: Production
+  permissions:
+    contents: read
+    pull-requests: write
+  steps:
+    - uses: actions/checkout@v4
 
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v20
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-project-name: github-action-workflow-xy2m     
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: ${{ env.PROJECT_PATH }} 
-          vercel-args: '--prod --yes'
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v20
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-project-name: github-action-workflow-xy2m
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: ${{ env.PROJECT_PATH }}
+        vercel-args: '--prod --yes'

@@ -64,7 +64,7 @@ jobs:
   needs: build
   runs-on: ubuntu-latest
   if: github.ref == 'refs/heads/main'
-  # environment: Production
+  environment: Production
   permissions:
     contents: read
     pull-requests: write

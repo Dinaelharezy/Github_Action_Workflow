@@ -76,3 +76,4 @@ jobs:
           vercel-project-name: github-action-workflow-xy2m     
           github-token: ${{ secrets.GITHUB_TOKEN }}
           working-directory: ${{ env.PROJECT_PATH }}   
+          vercel-args: '--prod --yes' 

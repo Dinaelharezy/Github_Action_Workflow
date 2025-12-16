@@ -1,16 +1,48 @@
 {
-  "name": "my-calculator-app",
+  "name": "calculator-app",
   "version": "1.0.0",
-  "description": "Calculator App with CI/CD Pipeline",
-  "main": "src/app.js",
+  "description": "Simple calculator application with UI and comprehensive tests",
+  "main": "app.js",
   "scripts": {
-    "test": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "start": "node app.js"
   },
-  "keywords": ["calculator", "github-actions"],
-  "author": "Your Name",
-  "license": "MIT",
+  "keywords": [
+    "calculator",
+    "testing",
+    "jest",
+    "ci-cd"
+  ],
+  "author": "",
+  "license": "ISC",
   "devDependencies": {
-    "jest": "^29.7.0"
+    "@testing-library/dom": "^9.3.4",
+    "@testing-library/jest-dom": "^6.1.5",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageReporters": [
+      "json",
+      "json-summary",
+      "lcov",
+      "text",
+      "html"
+    ],
+    "testMatch": [
+      "**/__tests__/**/*.js",
+      "**/?(*.)+(spec|test).js"
+    ],
+    "collectCoverageFrom": [
+      "**/*.js",
+      "!**/node_modules/**",
+      "!**/coverage/**",
+      "!jest.config.js"
+    ]
   }
 }

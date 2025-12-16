@@ -49,7 +49,14 @@ jobs:
       
       - name: 📦 Install Dependencies
         working-directory: ${{ env.PROJECT_PATH }}
-        run: npm ci
+        run: |
+          if [ ! -f package-lock.json ]; then
+            echo "⚠️ package-lock.json not found, running npm install..."
+            npm install
+          else
+            echo "✅ Using npm ci with package-lock.json"
+            npm ci
+          fi
       
       - name: 🧪 Run Tests
         id: run-tests
@@ -104,7 +111,9 @@ jobs:
         run: |
           echo "📦 Packaging application files..."
           mkdir -p ../build
-          cp -r src ../build/
+          cp *.js ../build/ 2>/dev/null || true
+          cp *.html ../build/ 2>/dev/null || true
+          cp package.json ../build/ 2>/dev/null || true
           echo "✅ Packaging complete!"
       
       - name: 📤 Upload Build

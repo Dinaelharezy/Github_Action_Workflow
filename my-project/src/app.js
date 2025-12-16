@@ -91,7 +91,7 @@ class CalculatorUI {
         this.calculator = new Calculator();
         this.display = null;
     }
-
+//call function
     createUI() {
         const container = document.createElement('div');
         container.className = 'calculator-container';

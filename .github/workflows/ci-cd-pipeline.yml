@@ -58,7 +58,7 @@ jobs:
         working-directory: ${{ env.PROJECT_PATH }}
         run: npm run build || echo "No build step"
 
-  # ----------- DEPLOY -----------
+  # ---------- DEPLOY -----------
   deploy:
     name: 🚀 Deploy to Vercel
     needs: build

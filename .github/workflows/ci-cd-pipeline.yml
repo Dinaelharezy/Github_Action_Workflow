@@ -64,7 +64,7 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    environment: Production
+    # environment: Production
 
     steps:
       - uses: actions/checkout@v4
@@ -75,5 +75,5 @@ jobs:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           vercel-project-name: github-action-workflow-xy2m     
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: ${{ env.PROJECT_PATH }}   
-          vercel-args: '--prod --yes' 
+          working-directory: ${{ env.PROJECT_PATH }} 
+          vercel-args: '--prod --yes'

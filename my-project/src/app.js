@@ -99,7 +99,7 @@ class CalculatorUI {
             <div class="calculator">
                 <div class="display" id="display">0</div>
                 <div class="buttons">
-                    <button class="btn btn-secondary" data-action="clear">C</button>
+                    <button class="btn btn-secondary" data-action="clear">Ccc</button>
                     <button class="btn btn-secondary" data-action="delete">DEL</button>
                     <button class="btn btn-secondary" data-action="divide">/</button>
                     <button class="btn btn-operator" data-action="multiply">*</button>
